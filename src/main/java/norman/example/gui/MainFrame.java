@@ -101,16 +101,15 @@ public class MainFrame extends JFrame implements ActionListener {
         JLabel langLabel = new JLabel(bundle.getString("options.language"));
         optionsPanel.add(langLabel);
 
-
-        Locale[] langs = {Locale.ENGLISH, Locale.FRENCH, Locale.GERMAN};
-        JComboBox langComboBox = new JComboBox(langs);
+        LocaleWrapper[] locales = {new LocaleWrapper(Locale.ENGLISH), new LocaleWrapper(Locale.FRENCH), new LocaleWrapper(Locale.GERMAN)};
+        JComboBox langComboBox = new JComboBox(locales);
         optionsPanel.add(langComboBox);
-        langComboBox.setSelectedItem(Locale.getDefault());
+        langComboBox.setSelectedItem(new LocaleWrapper());
         MainFrame mainFrame = this;
         langComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                Locale newLang = (Locale) langComboBox.getSelectedItem();
-                appProps.setProperty("main.frame.language", newLang.toLanguageTag());
+                LocaleWrapper newLang = (LocaleWrapper) langComboBox.getSelectedItem();
+                appProps.setProperty("main.frame.language", newLang.getLocale().toLanguageTag());
                 try {
                     Application.storeProps(appProps);
                 } catch (LoggingException e) {
@@ -118,7 +117,7 @@ public class MainFrame extends JFrame implements ActionListener {
                             bundle.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
                 }
 
-                Locale.setDefault(newLang);
+                Locale.setDefault(newLang.getLocale());
                 initComponents();
                 optionsFrame.dispose();
             }
