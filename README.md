@@ -1,2 +1,2 @@
-# example-gui
-An example JAVA Swing application.
+# Example GUI
+An example Java Swing application.

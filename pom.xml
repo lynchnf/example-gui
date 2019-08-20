@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>Example GUI</name>
-    <description>An example JAVA Swing application.</description>
+    <description>An example Java Swing application.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
