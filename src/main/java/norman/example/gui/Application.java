@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -46,6 +47,7 @@ public class Application {
         appProps.setProperty("main.frame.height", BUNDLE.getString("main.frame.height.default"));
         appProps.setProperty("main.frame.location.x", BUNDLE.getString("main.frame.location.x.default"));
         appProps.setProperty("main.frame.location.y", BUNDLE.getString("main.frame.location.y.default"));
+        appProps.setProperty("main.frame.language", Locale.getDefault().toLanguageTag());
 
         // Create home directory if it does not exist.
         File appDir = new File(SystemUtils.USER_HOME, APP_DIR_NAME);

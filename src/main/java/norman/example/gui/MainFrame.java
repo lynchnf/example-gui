@@ -8,12 +8,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class MainFrame extends JFrame implements ActionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
-    private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("norman.example.gui.MainFrame");
+    private ResourceBundle bundle;
     private Properties appProps;
     private JDesktopPane desktop;
     private JMenuItem optionsFileItem;
@@ -23,6 +24,8 @@ public class MainFrame extends JFrame implements ActionListener {
         super();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.appProps = appProps;
+        Locale.setDefault(Locale.forLanguageTag(appProps.getProperty("main.frame.language")));
+
         initComponents();
         int width = Integer.parseInt(appProps.getProperty("main.frame.width"));
         int height = Integer.parseInt(appProps.getProperty("main.frame.height"));
@@ -33,20 +36,21 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     private void initComponents() {
-        LOGGER.debug("Initializing window components.");
-        setTitle(BUNDLE.getString("title"));
+        LOGGER.debug("Initializing window components. Locale = " + Locale.getDefault());
+        bundle = ResourceBundle.getBundle("norman.example.gui.MainFrame");
+        setTitle(bundle.getString("title"));
         desktop = new JDesktopPane();
         setContentPane(desktop);
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu fileMenu = new JMenu(BUNDLE.getString("menu.file"));
+        JMenu fileMenu = new JMenu(bundle.getString("menu.file"));
         menuBar.add(fileMenu);
-        optionsFileItem = new JMenuItem(BUNDLE.getString("menu.file.options"));
+        optionsFileItem = new JMenuItem(bundle.getString("menu.file.options"));
         fileMenu.add(optionsFileItem);
         optionsFileItem.addActionListener(this);
         fileMenu.add(new JSeparator());
-        exitFileItem = new JMenuItem(BUNDLE.getString("menu.file.exit"));
+        exitFileItem = new JMenuItem(bundle.getString("menu.file.exit"));
         fileMenu.add(exitFileItem);
         exitFileItem.addActionListener(this);
     }
@@ -57,7 +61,7 @@ public class MainFrame extends JFrame implements ActionListener {
             LOGGER.debug("Processing exit menu item.");
             processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         } else if (actionEvent.getSource().equals(optionsFileItem)) {
-            //options();
+            options();
         }
     }
 
@@ -77,10 +81,55 @@ public class MainFrame extends JFrame implements ActionListener {
             try {
                 Application.storeProps(appProps);
             } catch (LoggingException e) {
-                JOptionPane.showMessageDialog(this, BUNDLE.getString("error.message.saving.window.size.and.location"),
-                        BUNDLE.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, bundle.getString("error.message.saving.window.size.and.location"),
+                        bundle.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
         super.processWindowEvent(windowEvent);
+    }
+
+    private void options() {
+        // Put up an options panel to change the number of moves per second
+        JFrame optionsFrame = new JFrame();
+        optionsFrame.setTitle(bundle.getString("options.title"));
+        optionsFrame.setResizable(false);
+
+        JPanel optionsPanel = new JPanel();
+        optionsFrame.add(optionsPanel);
+        optionsPanel.setOpaque(false);
+
+        JLabel langLabel = new JLabel(bundle.getString("options.language"));
+        optionsPanel.add(langLabel);
+
+
+        Locale[] langs = {Locale.ENGLISH, Locale.FRENCH, Locale.GERMAN};
+        JComboBox langComboBox = new JComboBox(langs);
+        optionsPanel.add(langComboBox);
+        langComboBox.setSelectedItem(Locale.getDefault());
+        MainFrame mainFrame = this;
+        langComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                Locale newLang = (Locale) langComboBox.getSelectedItem();
+                appProps.setProperty("main.frame.language", newLang.toLanguageTag());
+                try {
+                    Application.storeProps(appProps);
+                } catch (LoggingException e) {
+                    JOptionPane.showMessageDialog(mainFrame, bundle.getString("error.message.saving.window.size.and.location"),
+                            bundle.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
+                }
+
+                Locale.setDefault(newLang);
+                initComponents();
+                optionsFrame.dispose();
+            }
+        });
+        optionsFrame.pack();
+
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int optionsWidth = optionsFrame.getWidth();
+        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+        int optionsHeight = optionsFrame.getHeight();
+        optionsFrame.setLocation((screenWidth - optionsWidth) / 2, (screenHeight - optionsHeight) / 2);
+        optionsFrame.setVisible(true);
     }
 }
