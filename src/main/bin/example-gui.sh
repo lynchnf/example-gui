@@ -1,5 +1,5 @@
 #!/bin/bash
 base_dir=$(dirname "$0")
 cd $base_dir
-java -jar ../lib/example-gui-${pom.version}.jar
+java -jar ../lib/${pom.artifactId}-${pom.version}.jar
 exit 0
