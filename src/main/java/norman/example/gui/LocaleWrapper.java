@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class LocaleWrapper {
-    private Locale locale;
+    private final Locale locale;
 
     public LocaleWrapper() {
         this.locale = Locale.getDefault();
@@ -24,8 +24,12 @@ public class LocaleWrapper {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         LocaleWrapper that = (LocaleWrapper) o;
         return Objects.equals(locale, that.locale);
     }

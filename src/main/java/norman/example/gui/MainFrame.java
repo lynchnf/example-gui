@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
 public class MainFrame extends JFrame implements ActionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
     private ResourceBundle bundle;
-    private Properties appProps;
+    private final Properties appProps;
     private JDesktopPane desktop;
     private JMenuItem optionsFileItem;
     private JMenuItem exitFileItem;
@@ -89,11 +89,9 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     private void options() {
-        // Put up an options panel to change the number of moves per second
         JFrame optionsFrame = new JFrame();
         optionsFrame.setTitle(bundle.getString("options.title"));
         optionsFrame.setResizable(false);
-
         JPanel optionsPanel = new JPanel();
         optionsFrame.add(optionsPanel);
         optionsPanel.setOpaque(false);
@@ -101,26 +99,27 @@ public class MainFrame extends JFrame implements ActionListener {
         JLabel langLabel = new JLabel(bundle.getString("options.language"));
         optionsPanel.add(langLabel);
 
-        LocaleWrapper[] locales = {new LocaleWrapper(Locale.ENGLISH), new LocaleWrapper(Locale.FRENCH), new LocaleWrapper(Locale.GERMAN)};
-        JComboBox langComboBox = new JComboBox(locales);
+        LocaleWrapper[] locales =
+                {new LocaleWrapper(Locale.ENGLISH), new LocaleWrapper(Locale.FRENCH), new LocaleWrapper(Locale.GERMAN)};
+        JComboBox<LocaleWrapper> langComboBox = new JComboBox<>(locales);
         optionsPanel.add(langComboBox);
         langComboBox.setSelectedItem(new LocaleWrapper());
         MainFrame mainFrame = this;
-        langComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                LocaleWrapper newLang = (LocaleWrapper) langComboBox.getSelectedItem();
-                appProps.setProperty("main.frame.language", newLang.getLocale().toLanguageTag());
-                try {
-                    Application.storeProps(appProps);
-                } catch (LoggingException e) {
-                    JOptionPane.showMessageDialog(mainFrame, bundle.getString("error.message.saving.window.size.and.location"),
-                            bundle.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
-                }
-
-                Locale.setDefault(newLang.getLocale());
-                initComponents();
-                optionsFrame.dispose();
+        langComboBox.addActionListener(actionEvent -> {
+            LocaleWrapper newLang = (LocaleWrapper) langComboBox.getSelectedItem();
+            assert newLang != null;
+            appProps.setProperty("main.frame.language", newLang.getLocale().toLanguageTag());
+            try {
+                Application.storeProps(appProps);
+            } catch (LoggingException e) {
+                JOptionPane.showMessageDialog(mainFrame,
+                        bundle.getString("error.message.saving.window.size.and.location"),
+                        bundle.getString("error.dialog.title"), JOptionPane.ERROR_MESSAGE);
             }
+
+            Locale.setDefault(newLang.getLocale());
+            initComponents();
+            optionsFrame.dispose();
         });
         optionsFrame.pack();
 

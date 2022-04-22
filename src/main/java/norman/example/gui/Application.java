@@ -6,7 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -18,7 +22,7 @@ public class Application {
     private static final String APP_PROPS_FILE_NAME = "example-gui.properties";
     private static final String APP_PROPS_FILE_COMMENTS = "Example GUI";
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         LOGGER.debug("Starting Application");
 
         final Properties appProps = new Properties();
@@ -32,11 +36,9 @@ public class Application {
             throw new RuntimeException(e);
         }
 
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                MainFrame mainFrame = new MainFrame(appProps);
-                mainFrame.setVisible(true);
-            }
+        EventQueue.invokeLater(() -> {
+            MainFrame mainFrame = new MainFrame(appProps);
+            mainFrame.setVisible(true);
         });
     }
 
